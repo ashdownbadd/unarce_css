@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;600&display=swap" rel="stylesheet">
+    <title>CSS Card & Button</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: black;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .card-container {
+            perspective: 1000px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .card {
+            width: 400px;
+            height: 560px;
+            transform-style: preserve-3d;
+            position: relative;
+            cursor: pointer;
+            border-radius: 15px;
+            transform: rotateY(0deg) rotateX(0deg);
+            box-shadow: 0 0 30px rgba(255, 0, 255, 0.6), 0 0 14px #C724B1, 0 0 16px rgba(255, 0, 255, 0.8);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card-front,
+        .card-back {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 15px;
+        }
+
+        .card-front img,
+        .card-back img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 15px;
+        }
+
+        .card-back {
+            transform: rotateY(180deg);
+        }
+
+        .flip-button {
+            margin-top: 50px;
+            padding: 12px 30px;
+            background-color: #B32A57;
+            border: none;
+            color: #2D1616;
+            border-radius: 15px;
+            font-size: 18px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: box-shadow 0.3s ease, transform 0.3s ease;
+        }
+
+        .flip-button:hover {
+            transform: scale(1.05);
+        }
+
+        .side-text {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 20px;
+            color: white;
+            font-family: 'Raleway', sans-serif;
+            font-weight: bold;
+        }
+
+        .left-text {
+            left: -530px;
+        }
+
+        .right-text {
+            right: -500px;
+        }
+
+        @media (max-width: 768px) {
+            .card {
+                width: 80vw;
+                height: auto;
+            }
+
+            .side-text {
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="card-container">
+        <div class="card" id="card">
+            <div class="card-front">
+                <img src="85_hires.png" alt="Pokemon Front">
+            </div>
+            <div class="card-back">
+                <img src="tcg-card-back-2x.jpg" alt="Pokemon Back">
+            </div>
+            <div class="side-text left-text">Unarce, Randall Jay V.</div>
+            <div class="side-text right-text">CSS Card & Button</div>
+        </div>
+    </div>
+
+    <button class="flip-button" id="flipButton">Flip Card</button>
+
+    <script>
+        const card = document.getElementById('card');
+        const flipButton = document.getElementById('flipButton');
+
+        let isFlipped = false;
+        let isEnlarged = false;
+
+        flipButton.addEventListener('click', () => {
+            isFlipped = !isFlipped;
+            if (isFlipped) {
+                card.style.transform = 'rotateY(180deg)';
+            } else {
+                card.style.transform = 'rotateY(0deg)';
+            }
+        });
+
+        card.addEventListener('mousemove', (e) => {
+            if (!isEnlarged && !isFlipped) {
+                const { width, height, left, top } = card.getBoundingClientRect();
+                const centerX = width / 2;
+                const centerY = height / 2;
+
+                const mouseX = e.clientX - left;
+                const mouseY = e.clientY - top;
+
+                const deltaX = (mouseX - centerX) / centerX;
+                const deltaY = (mouseY - centerY) / centerY;
+
+                card.style.transform = `rotateY(${deltaX * 25}deg) rotateX(${deltaY * -25}deg)`;
+
+                const color1 = Math.floor((deltaX + 1) * 127.5);
+                const color2 = Math.floor((deltaY + 1) * 127.5);
+
+                card.style.boxShadow = `0 0 6px rgba(${color1}, 0, 255, 0.6), 0 0 14px rgba(255, ${color2}, 0, 0.8), 0 0 16px rgba(${color1}, ${color2}, 255, 1)`;
+            }
+        });
+
+        card.addEventListener('mouseleave', () => {
+            if (!isFlipped && !isEnlarged) {
+                card.style.transform = 'rotateY(0deg) rotateX(0deg)';
+                card.style.boxShadow = '0 0 6px rgba(255, 0, 255, 0.6), 0 0 14px #C724B1, 0 0 16px rgba(255, 0, 255, 0.8)';
+            }
+        });
+
+        card.addEventListener('click', () => {
+            if (!isEnlarged) {
+                card.style.transform = 'scale(1.5)';
+                card.style.boxShadow = '0 0 10px rgba(255, 0, 255, 0.8), 0 0 60px #C724B1, 0 0 32px rgba(255, 0, 255, 1)';
+                isEnlarged = true;
+            } else {
+                card.style.transform = 'scale(1)';
+                card.style.boxShadow = '0 0 20px rgba(255, 0, 255, 0.6), 0 0 60px #C724B1, 0 0 32px rgba(255, 0, 255, 0.8)';
+                isEnlarged = false;
+            }
+        });
+    </script>
+</body>
+
+</html>
